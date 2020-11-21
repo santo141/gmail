@@ -25,8 +25,8 @@ import { storeWithProfile } from '../fixtures/stores';
 import {
   getBoundingBox,
   getMouseEvent,
-  addRootOverlayElement,
-  removeRootOverlayElement,
+  addScreenshotHoverlement,
+  removeScreenshotHoverElement,
   fireFullClick,
 } from '../fixtures/utils';
 import { getScreenshotTrackProfile } from '../fixtures/profiles/processed-profile';
@@ -42,8 +42,8 @@ const TOP = 7;
 describe('timeline/TrackScreenshots', function() {
   autoMockDomRect();
 
-  beforeEach(addRootOverlayElement);
-  afterEach(removeRootOverlayElement);
+  beforeEach(addScreenshotHoverlement);
+  afterEach(removeScreenshotHoverElement);
 
   it('matches the component snapshot', () => {
     const { container, unmount } = setup();

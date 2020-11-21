@@ -229,9 +229,9 @@ type HoverPreviewProps = {|
 const MAXIMUM_HOVER_SIZE = 350;
 
 class HoverPreview extends PureComponent<HoverPreviewProps> {
-  _overlayElement = ensureExists(
-    document.querySelector('#root-overlay'),
-    'Expected to find a root overlay element.'
+  _screenshotHoverElement = ensureExists(
+    document.querySelector('#screenshot-hover'),
+    'Expected to find a screenshot hover element.'
   );
 
   render() {
@@ -299,7 +299,7 @@ class HoverPreview extends PureComponent<HoverPreviewProps> {
           }}
         />
       </div>,
-      this._overlayElement
+      this._screenshotHoverElement
     );
   }
 }

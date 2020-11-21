@@ -98,6 +98,7 @@ class ProfileViewerImpl extends PureComponent<Props> {
                 }
           }
         >
+          <div id="screenshot-hover"></div>
           <div className="profileViewerTopBar">
             {hasZipFile ? (
               <button
