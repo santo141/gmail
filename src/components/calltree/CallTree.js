@@ -214,6 +214,7 @@ class CallTreeImpl extends PureComponent<Props> {
       handleCallNodeTransformShortcut,
       threadsKey,
     } = this.props;
+
     const nodeIndex =
       rightClickedCallNodeIndex !== null
         ? rightClickedCallNodeIndex
@@ -224,13 +225,25 @@ class CallTreeImpl extends PureComponent<Props> {
     handleCallNodeTransformShortcut(event, threadsKey, nodeIndex);
   };
 
-  _onEnterOrDoubleClick = (nodeId: IndexIntoCallNodeTable) => {
+  _onEnter = (nodeId: IndexIntoCallNodeTable) => {
     const { tree, openSourceView } = this.props;
-    const file = tree.getRawFileNameForCallNode(nodeId);
-    if (file === null) {
-      return;
-    }
-    openSourceView(file, 'calltree');
+    tree.handleOpenSourceView(
+      nodeId,
+      (file, name) => openSourceView(file, name, 'calltree'),
+      false
+    );
+  };
+
+  _onDoubleClick = (
+    nodeId: IndexIntoCallNodeTable,
+    event: SyntheticMouseEvent<>
+  ) => {
+    const { tree, openSourceView } = this.props;
+    tree.handleOpenSourceView(
+      nodeId,
+      (file, name) => openSourceView(file, name, 'calltree'),
+      event.shiftKey
+    );
   };
 
   maybeProcureInterestingInitialSelection() {
@@ -324,8 +337,8 @@ class CallTreeImpl extends PureComponent<Props> {
         rowHeight={16}
         indentWidth={10}
         onKeyDown={this._onKeyDown}
-        onEnterKey={this._onEnterOrDoubleClick}
-        onDoubleClick={this._onEnterOrDoubleClick}
+        onEnterKey={this._onEnter}
+        onDoubleClick={this._onDoubleClick}
       />
     );
   }

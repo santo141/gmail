@@ -389,10 +389,11 @@ type TreeViewProps<DisplayData> = {|
   +onSelectionChange: (NodeIndex) => mixed,
   +onRightClickSelection?: (NodeIndex) => mixed,
   +onEnterKey?: (NodeIndex) => mixed,
-  +onDoubleClick?: (NodeIndex) => mixed,
+  +onDoubleClick?: (NodeIndex, SyntheticMouseEvent<>) => mixed,
   +rowHeight: CssPixels,
   +indentWidth: CssPixels,
   +onKeyDown?: (SyntheticKeyboardEvent<>) => void,
+  +onKeyUp?: (SyntheticKeyboardEvent<>) => void,
 |};
 
 export class TreeView<DisplayData: Object> extends React.PureComponent<
@@ -586,7 +587,7 @@ export class TreeView<DisplayData: Object> extends React.PureComponent<
     if (event.detail === 2 && event.button === 0) {
       // double click
       if (this.props.onDoubleClick) {
-        this.props.onDoubleClick(nodeId);
+        this.props.onDoubleClick(nodeId, event);
       } else {
         this._toggle(nodeId);
       }
@@ -728,6 +729,12 @@ export class TreeView<DisplayData: Object> extends React.PureComponent<
     }
   };
 
+  _onKeyUp = (event: SyntheticKeyboardEvent<>) => {
+    if (this.props.onKeyUp) {
+      this.props.onKeyUp(event);
+    }
+  };
+
   /* This method is used by users of this component. */
   /* eslint-disable-next-line react/no-unused-class-component-methods */
   focus() {
@@ -748,7 +755,7 @@ export class TreeView<DisplayData: Object> extends React.PureComponent<
       selectedNodeId,
     } = this.props;
     return (
-      <div className="treeView">
+      <div className="treeView" onKeyUp={this._onKeyUp}>
         <TreeViewHeader fixedColumns={fixedColumns} mainColumn={mainColumn} />
         <ContextMenuTrigger
           id={contextMenuId ?? 'unknown'}

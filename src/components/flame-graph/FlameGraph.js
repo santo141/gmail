@@ -123,16 +123,19 @@ class FlameGraphImpl extends React.PureComponent<Props> {
     );
   };
 
-  _onCallNodeDoubleClick = (callNodeIndex: IndexIntoCallNodeTable | null) => {
+  _onCallNodeDoubleClick = (
+    callNodeIndex: IndexIntoCallNodeTable | null,
+    event: SyntheticMouseEvent<>
+  ) => {
     if (callNodeIndex === null) {
       return;
     }
     const { callTree, openSourceView } = this.props;
-    const file = callTree.getRawFileNameForCallNode(callNodeIndex);
-    if (file === null) {
-      return;
-    }
-    openSourceView(file, 'flame-graph');
+    callTree.handleOpenSourceView(
+      callNodeIndex,
+      (file, name) => openSourceView(file, name, 'flame-graph'),
+      event.shiftKey
+    );
   };
 
   _shouldDisplayTooltips = () => this.props.rightClickedCallNodeIndex === null;
@@ -219,10 +222,9 @@ class FlameGraphImpl extends React.PureComponent<Props> {
 
     if (event.key === 'Enter') {
       if (selectedCallNodeIndex !== null) {
-        const file = callTree.getRawFileNameForCallNode(selectedCallNodeIndex);
-        if (file !== null) {
-          openSourceView(file, 'flame-graph');
-        }
+        callTree.handleOpenSourceView(selectedCallNodeIndex, (file, name) =>
+          openSourceView(file, name, 'flame-graph')
+        );
       }
       return;
     }

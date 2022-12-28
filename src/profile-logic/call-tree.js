@@ -368,15 +368,119 @@ export class CallTree {
     );
   }
 
-  getRawFileNameForCallNode(
+  getRawFileNameAndMethodInfoForCallNode(
     callNodeIndex: IndexIntoCallNodeTable
-  ): string | null {
+  ): {
+    file: string | null,
+    line: number | null,
+    method: string,
+    column: number | null,
+    sourceUrl: string | null,
+  } | null {
     const funcIndex = this._callNodeTable.func[callNodeIndex];
     const fileName = this._funcTable.fileName[funcIndex];
-    if (fileName === null) {
-      return null;
+    const line = this._funcTable.lineNumber[funcIndex];
+    const method = this._stringTable.getString(this._funcTable.name[funcIndex]);
+    const column = this._funcTable.columnNumber[funcIndex];
+    let sourceUrl = null;
+    if (
+      this._funcTable.sourceUrl &&
+      this._funcTable.sourceUrl[funcIndex] !== null
+    ) {
+      sourceUrl = this._stringTable.getString(
+        this._funcTable.sourceUrl[funcIndex]
+      );
     }
-    return this._stringTable.getString(fileName);
+    return {
+      file:
+        fileName !== null ? this._stringTable.getString(fileName) : sourceUrl,
+      line,
+      method,
+      column,
+      sourceUrl,
+    };
+  }
+
+  handleOpenSourceView(
+    callNodeIndex: IndexIntoCallNodeTable,
+    openSourceView: (file: string, name: string | null) => any,
+    forceLoadSource: boolean = false
+  ) {
+    const info = this.getRawFileNameAndMethodInfoForCallNode(callNodeIndex);
+    if (info === null) {
+      return;
+    }
+    const { file, method, line, column, sourceUrl } = info;
+    if (file === null && sourceUrl === null) {
+      // we have no indication where the file resides
+      return;
+    }
+    if (sourceUrl === null) {
+      // the simplest case, we don't have an additional source url
+      // the file includes it already
+      // $FlowExpectError
+      openSourceView(file, null);
+      return;
+    }
+    let rawSourceUrl = sourceUrl.replace(/^post|/, '');
+    let reallyForceLoadSource = forceLoadSource;
+    let name = file;
+    if (rawSourceUrl.includes('|')) {
+      // rawSourceUrl = sourceUrl | alternative
+      const [first, alternative] = rawSourceUrl.split('|');
+      if (first.startsWith(window.location.origin)) {
+        // we're serving the file from the same origin, therefore the first URL
+        rawSourceUrl = first;
+        if (name === null) {
+          name = alternative;
+        }
+      } else {
+        // we're not serving the file from the same origin, like from profiler.firefox.com
+        // so use the public alternative
+        // if present
+        rawSourceUrl = alternative;
+        reallyForceLoadSource = true;
+      }
+    }
+    if (rawSourceUrl.length === 0) {
+      return;
+    }
+    if (sourceUrl.startsWith('post|') && !reallyForceLoadSource) {
+      this._triggerSourceViewEventOnRemote(
+        file,
+        line,
+        method,
+        column,
+        rawSourceUrl
+      );
+    } else {
+      openSourceView(rawSourceUrl, name);
+    }
+  }
+
+  _triggerSourceViewEventOnRemote(
+    file: string | null,
+    line: number | null,
+    method: string,
+    column: number | null,
+    remoteUrl: string
+  ) {
+    const requestInit = {
+      body: JSON.stringify({
+        file,
+        line,
+        method,
+        column,
+      }),
+      method: 'POST',
+      mode: 'cors',
+      credentials: 'omit',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    };
+    fetch(remoteUrl, requestInit);
   }
 }
 
