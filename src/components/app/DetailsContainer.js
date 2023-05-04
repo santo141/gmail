@@ -4,9 +4,9 @@
 // @flow
 
 import React from 'react';
-import SplitterLayout from 'react-splitter-layout';
 
 import { Details } from './Details';
+import { ResizableWithSplitter } from 'firefox-profiler/components/shared/ResizableWithSplitter';
 import { selectSidebar } from 'firefox-profiler/components/sidebar';
 
 import { invalidatePanelLayout } from 'firefox-profiler/actions/app';
@@ -30,23 +30,24 @@ type DispatchProps = {|
 
 type Props = ConnectedProps<{||}, StateProps, DispatchProps>;
 
-function DetailsContainerImpl({
-  selectedTab,
-  isSidebarOpen,
-  invalidatePanelLayout,
-}: Props) {
+function DetailsContainerImpl({ selectedTab, isSidebarOpen }: Props) {
   const Sidebar = selectSidebar(selectedTab);
 
   return (
-    <SplitterLayout
-      customClassName="DetailsContainer"
-      percentage
-      secondaryInitialSize={20}
-      onDragEnd={invalidatePanelLayout}
-    >
+    <div className="DetailsContainer">
       <Details />
-      {Sidebar && isSidebarOpen ? <Sidebar /> : null}
-    </SplitterLayout>
+      {Sidebar && isSidebarOpen ? (
+        <ResizableWithSplitter
+          className="DetailsContainerResizableSidebarWrapper"
+          percent={false}
+          splitterPosition="start"
+          controlledProperty="width"
+          initialSize="300px"
+        >
+          <Sidebar />
+        </ResizableWithSplitter>
+      ) : null}
+    </div>
   );
 }
 

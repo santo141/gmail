@@ -4,11 +4,11 @@
 // @flow
 
 import React from 'react';
-import SplitterLayout from 'react-splitter-layout';
 import classNames from 'classnames';
 
 import { SourceView } from '../shared/SourceView';
 import { AssemblyView } from '../shared/AssemblyView';
+import { ResizableWithSplitter } from '../shared/ResizableWithSplitter';
 import { AssemblyViewToggleButton } from './AssemblyViewToggleButton';
 import { CodeLoadingOverlay } from './CodeLoadingOverlay';
 import { CodeErrorOverlay } from './CodeErrorOverlay';
@@ -205,36 +205,41 @@ class BottomBoxImpl extends React.PureComponent<Props> {
 
     return (
       <div className="bottom-box">
-        <SplitterLayout customClassName="bottom-box" percentage>
-          <div className="bottom-box-pane">
-            <div className="bottom-box-bar">
-              <h3 className="bottom-box-title">{path ?? '(no source file)'}</h3>
-              {assemblyViewIsOpen ? null : trailingHeaderButtons}
-            </div>
-            <div className="bottom-sourceview-wrapper">
-              {sourceViewFile !== null ? (
-                <SourceView
-                  disableOverscan={disableOverscan}
-                  timings={globalLineTimings}
-                  sourceCode={sourceCode}
-                  filePath={path}
-                  scrollToHotSpotGeneration={sourceViewScrollGeneration}
-                  hotSpotTimings={selectedCallNodeLineTimings}
-                  ref={this._sourceView}
-                />
-              ) : null}
-              {sourceViewCode !== undefined &&
-              sourceViewCode.type === 'LOADING' ? (
-                <CodeLoadingOverlay source={sourceViewCode.source} />
-              ) : null}
-              {sourceViewCode !== undefined &&
-              sourceViewCode.type === 'ERROR' ? (
-                <SourceCodeErrorOverlay errors={sourceViewCode.errors} />
-              ) : null}
-            </div>
+        <div className="bottom-box-pane">
+          <div className="bottom-box-bar">
+            <h3 className="bottom-box-title">{path ?? '(no source file)'}</h3>
+            {assemblyViewIsOpen ? null : trailingHeaderButtons}
           </div>
+          <div className="bottom-sourceview-wrapper">
+            {sourceViewFile !== null ? (
+              <SourceView
+                disableOverscan={disableOverscan}
+                timings={globalLineTimings}
+                sourceCode={sourceCode}
+                filePath={path}
+                scrollToHotSpotGeneration={sourceViewScrollGeneration}
+                hotSpotTimings={selectedCallNodeLineTimings}
+                ref={this._sourceView}
+              />
+            ) : null}
+            {sourceViewCode !== undefined &&
+            sourceViewCode.type === 'LOADING' ? (
+              <CodeLoadingOverlay source={sourceViewCode.source} />
+            ) : null}
+            {sourceViewCode !== undefined && sourceViewCode.type === 'ERROR' ? (
+              <SourceCodeErrorOverlay errors={sourceViewCode.errors} />
+            ) : null}
+          </div>
+        </div>
 
-          {assemblyViewIsOpen ? (
+        {assemblyViewIsOpen ? (
+          <ResizableWithSplitter
+            splitterPosition="start"
+            controlledProperty="width"
+            className=""
+            percent={true}
+            initialSize="50%"
+          >
             <div className="bottom-box-pane">
               <div className="bottom-box-bar">
                 <h3 className="bottom-box-title">
@@ -268,8 +273,8 @@ class BottomBoxImpl extends React.PureComponent<Props> {
                 ) : null}
               </div>
             </div>
-          ) : null}
-        </SplitterLayout>
+          </ResizableWithSplitter>
+        ) : null}
       </div>
     );
   }

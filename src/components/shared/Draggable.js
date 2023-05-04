@@ -14,7 +14,7 @@ export type OnMove<T> = (
 ) => void;
 
 type Props<T> = {
-  value: T,
+  getInitialValue: () => T,
   onMove: OnMove<T>,
   className: string,
   children?: React.Node,
@@ -57,7 +57,7 @@ export class Draggable<T> extends React.PureComponent<Props<T>, State> {
 
     const mouseDownX = e.pageX;
     const mouseDownY = e.pageY;
-    const startValue = this.props.value;
+    const startValue = this.props.getInitialValue();
 
     const mouseMoveHandler = (e) => {
       this.props.onMove(

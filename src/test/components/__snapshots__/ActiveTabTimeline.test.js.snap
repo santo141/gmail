@@ -398,7 +398,7 @@ exports[`ActiveTabTimeline should be rendered properly from the Timeline compone
       class="overflowEdgeIndicatorEdge leftEdge"
     />
     <div
-      class="overflowEdgeIndicatorScrollbox tracksContainer timelineOverflowEdgeIndicatorScrollbox"
+      class="overflowEdgeIndicatorScrollbox"
     >
       <div
         class="overflowEdgeIndicatorContentsWrapper"
