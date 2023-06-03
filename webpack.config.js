@@ -56,7 +56,6 @@ const config = {
         include: [
           ...includes,
           path.join(__dirname, 'node_modules', 'photon-colors'),
-          path.join(__dirname, 'node_modules', 'react-splitter-layout'),
         ],
       },
       {

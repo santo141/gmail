@@ -2,10 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-.timelineOverflowEdgeIndicatorScrollbox {
-  position: absolute;
+.timelineOverflowEdgeIndicator > .overflowEdgeIndicatorScrollbox {
+  position: relative;
   width: 100%;
-  height: 100%;
   padding-left: var(--thread-label-column-width);
   margin-right: calc(var(--vertical-scrollbar-reserved-width) * -1);
   margin-left: calc(var(--thread-label-column-width) * -1);
@@ -104,5 +103,4 @@
   /* Moving the timeline 1 pixel below the timeline header. This way, the first
    * visible track's top border will be hidden as expected. */
   margin-top: -1px;
-  margin-bottom: -1px;
 }

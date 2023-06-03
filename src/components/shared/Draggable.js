@@ -5,18 +5,17 @@
 // @flow
 
 import * as React from 'react';
-import type { Milliseconds } from 'firefox-profiler/types';
 
-export type OnMove = (
-  originalValue: { +selectionEnd: Milliseconds, +selectionStart: Milliseconds },
+export type OnMove<T> = (
+  originalValue: T,
   dx: number,
   dy: number,
   isModifying: boolean
 ) => void;
 
-type Props = {
-  value: { +selectionStart: Milliseconds, +selectionEnd: Milliseconds },
-  onMove: OnMove,
+type Props<T> = {
+  getInitialValue: () => T,
+  onMove: OnMove<T>,
   className: string,
   children?: React.Node,
 };
@@ -33,7 +32,7 @@ type State = {
  * x and y deltas compared to the mouse position at mousedown.
  * During the drag, the additional className 'dragging' is set on the element.
  */
-export class Draggable extends React.PureComponent<Props, State> {
+export class Draggable<T> extends React.PureComponent<Props<T>, State> {
   _container: HTMLDivElement | null = null;
   _handlers: {
     mouseMoveHandler: (MouseEvent) => void,
@@ -58,7 +57,7 @@ export class Draggable extends React.PureComponent<Props, State> {
 
     const mouseDownX = e.pageX;
     const mouseDownY = e.pageY;
-    const startValue = this.props.value;
+    const startValue = this.props.getInitialValue();
 
     const mouseMoveHandler = (e) => {
       this.props.onMove(

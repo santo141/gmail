@@ -1,6 +1,10 @@
 .Details {
   display: flex;
-  flex: auto;
+
+  /* If .Details is squished to a very small size between the sidebar and/or bottom bar,
+     don't spill out our contents over those other elements. */
+  overflow: hidden;
+  flex: 1;
   flex-direction: column;
 }
 

@@ -320,6 +320,14 @@ class TimelineRulerAndSelection extends React.PureComponent<Props> {
     }
   };
 
+  _getSelectionDraggableInitialValue = () => {
+    const { previewSelection } = this.props;
+    if (!previewSelection.hasSelection) {
+      throw new Error('This should only be called if we have a selection');
+    }
+    return previewSelection;
+  };
+
   renderSelectionOverlay(previewSelection: {
     +selectionStart: number,
     +selectionEnd: number,
@@ -350,17 +358,17 @@ class TimelineRulerAndSelection extends React.PureComponent<Props> {
           >
             <Draggable
               className="timelineSelectionGrippyRangeStart"
-              value={previewSelection}
+              getInitialValue={this._getSelectionDraggableInitialValue}
               onMove={this._rangeStartOnMove}
             />
             <Draggable
               className="timelineSelectionGrippyMoveRange"
-              value={previewSelection}
+              getInitialValue={this._getSelectionDraggableInitialValue}
               onMove={this._moveRangeOnMove}
             />
             <Draggable
               className="timelineSelectionGrippyRangeEnd"
-              value={previewSelection}
+              getInitialValue={this._getSelectionDraggableInitialValue}
               onMove={this._rangeEndOnMove}
             />
           </div>

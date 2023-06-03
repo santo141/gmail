@@ -14,7 +14,6 @@ import '../res/css/style.css';
 import '../res/css/global.css';
 import '../res/css/categories.css';
 import '../res/css/network.css';
-import 'react-splitter-layout/lib/index.css';
 
 import React from 'react';
 import { render } from 'react-dom';

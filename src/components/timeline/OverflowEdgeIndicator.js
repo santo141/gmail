@@ -115,10 +115,7 @@ class OverflowEdgeIndicator extends React.PureComponent<Props, State> {
         <div className="overflowEdgeIndicatorEdge bottomEdge" />
         <div className="overflowEdgeIndicatorEdge leftEdge" />
         <div
-          className={classNames(
-            'overflowEdgeIndicatorScrollbox',
-            `${className}Scrollbox`
-          )}
+          className={classNames('overflowEdgeIndicatorScrollbox')}
           onScroll={this._onScroll}
           ref={this._takeContainerRef}
         >
