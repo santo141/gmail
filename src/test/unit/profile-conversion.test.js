@@ -416,11 +416,26 @@ describe('converting ART trace', function () {
 });
 
 describe('converting Simpleperf trace', function () {
-  it('successfully imports a simpleperf trace file', async function () {
+  it('successfully imports a simpleperf trace with task-clock', async function () {
     const fs = require('fs');
     const zlib = require('zlib');
     const buffer = fs.readFileSync(
-      'src/test/fixtures/upgrades/simpleperf.trace.gz'
+      'src/test/fixtures/upgrades/simpleperf-task-clock.trace.gz'
+    );
+    const arrayBuffer = zlib.gunzipSync(buffer).buffer;
+    const profile = await unserializeProfileOfArbitraryFormat(arrayBuffer);
+    if (profile === undefined) {
+      throw new Error('Unable to parse the profile.');
+    }
+    checkProfileContainsUniqueTid(profile);
+    expect(profile).toMatchSnapshot();
+  });
+
+  it('successfully imports a simpleperf trace with cpu-clock', async function () {
+    const fs = require('fs');
+    const zlib = require('zlib');
+    const buffer = fs.readFileSync(
+      'src/test/fixtures/upgrades/simpleperf-cpu-clock.trace.gz'
     );
     const arrayBuffer = zlib.gunzipSync(buffer).buffer;
     const profile = await unserializeProfileOfArbitraryFormat(arrayBuffer);
