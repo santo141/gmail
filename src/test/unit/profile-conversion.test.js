@@ -414,3 +414,20 @@ describe('converting ART trace', function () {
     expect(profile).toMatchSnapshot();
   });
 });
+
+describe('converting Simpleperf trace', function () {
+  it('successfully imports a simpleperf trace file', async function () {
+    const fs = require('fs');
+    const zlib = require('zlib');
+    const buffer = fs.readFileSync(
+      'src/test/fixtures/upgrades/simpleperf.trace.gz'
+    );
+    const arrayBuffer = zlib.gunzipSync(buffer).buffer;
+    const profile = await unserializeProfileOfArbitraryFormat(arrayBuffer);
+    if (profile === undefined) {
+      throw new Error('Unable to parse the profile.');
+    }
+    checkProfileContainsUniqueTid(profile);
+    expect(profile).toMatchSnapshot();
+  });
+});
