@@ -23,6 +23,7 @@ import type {
   Tid,
 } from './profile';
 import type { IndexedArray } from './utils';
+import type { BitSet } from '../utils/bitset';
 import type { StackTiming } from '../profile-logic/stack-timing';
 export type IndexIntoCallNodeTable = number;
 
@@ -119,6 +120,10 @@ export type CallNodeTable = {
   // The number of call nodes. All columns in this table have this length.
   length: number,
 };
+
+// A bitset which indicates something per call node. Use `checkBit` from
+// utils/bitset to check whether a call node is part of the set.
+export type CallNodeTableBitSet = BitSet;
 
 export type LineNumber = number;
 
