@@ -132,8 +132,8 @@ class TrackMemoryCanvas extends React.PureComponent<CanvasProps> {
 
       ctx.lineWidth = deviceLineWidth;
       ctx.lineJoin = 'bevel';
-      ctx.strokeStyle = getStrokeColor(TRACK_MEMORY_COLOR);
-      ctx.fillStyle = getFillColor(TRACK_MEMORY_COLOR);
+      ctx.strokeStyle = getStrokeColor(counter.color || TRACK_MEMORY_COLOR);
+      ctx.fillStyle = getFillColor(counter.color || TRACK_MEMORY_COLOR);
       ctx.beginPath();
 
       // The x and y are used after the loop.
@@ -463,7 +463,7 @@ class TrackMemoryGraphImpl extends React.PureComponent<Props, State> {
         style={{
           left,
           top,
-          backgroundColor: getDotColor(TRACK_MEMORY_COLOR),
+          backgroundColor: getDotColor(counter.color || TRACK_MEMORY_COLOR),
         }}
         className="timelineTrackMemoryGraphDot"
       />
