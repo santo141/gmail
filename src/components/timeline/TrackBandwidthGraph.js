@@ -142,8 +142,8 @@ class TrackBandwidthCanvas extends React.PureComponent<CanvasProps> {
 
       ctx.lineWidth = deviceLineWidth;
       ctx.lineJoin = 'bevel';
-      ctx.strokeStyle = getStrokeColor(TRACK_BANDWIDTH_COLOR);
-      ctx.fillStyle = getFillColor(TRACK_BANDWIDTH_COLOR);
+      ctx.strokeStyle = getStrokeColor(counter.color || TRACK_BANDWIDTH_COLOR);
+      ctx.fillStyle = getFillColor(counter.color || TRACK_BANDWIDTH_COLOR);
       ctx.beginPath();
 
       const getX = (i) =>
@@ -617,7 +617,7 @@ class TrackBandwidthGraphImpl extends React.PureComponent<Props, State> {
         style={{
           left,
           top,
-          backgroundColor: getDotColor(TRACK_BANDWIDTH_COLOR),
+          backgroundColor: getDotColor(counter.color || TRACK_BANDWIDTH_COLOR),
         }}
         className="timelineTrackBandwidthGraphDot"
       />
