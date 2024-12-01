@@ -223,11 +223,25 @@ export function getStackAndSampleSelectorsPerThread(
       }
     );
 
+  const getUpperWingCallNodeInfo: Selector<CallNodeInfo> = createSelector(
+    _getNonInvertedCallNodeInfo,
+    getSelectedFunctionIndex,
+    ProfileSelectors.getDefaultCategory,
+    ProfileData.createUpperWingCallNodeInfo
+  );
+
   const getLowerWingSelectedCallNodePath: Selector<CallNodePath> =
     createSelector(
       threadSelectors.getViewOptions,
       (threadViewOptions): CallNodePath =>
         threadViewOptions.selectedLowerWingCallNodePath
+    );
+
+  const getUpperWingSelectedCallNodePath: Selector<CallNodePath> =
+    createSelector(
+      threadSelectors.getViewOptions,
+      (threadViewOptions): CallNodePath =>
+        threadViewOptions.selectedUpperWingCallNodePath
     );
 
   const getSelectedCallNodeIndex: Selector<IndexIntoCallNodeTable | null> =
@@ -248,6 +262,15 @@ export function getStackAndSampleSelectorsPerThread(
       }
     );
 
+  const getUpperWingSelectedCallNodeIndex: Selector<IndexIntoCallNodeTable | null> =
+    createSelector(
+      getUpperWingCallNodeInfo,
+      getUpperWingSelectedCallNodePath,
+      (callNodeInfo, callNodePath) => {
+        return callNodeInfo.getCallNodeIndexFromPath(callNodePath);
+      }
+    );
+
   const getExpandedCallNodePaths: Selector<PathSet> = createSelector(
     threadSelectors.getViewOptions,
     UrlState.getInvertCallstack,
@@ -260,6 +283,11 @@ export function getStackAndSampleSelectorsPerThread(
   const getLowerWingExpandedCallNodePaths: Selector<PathSet> = createSelector(
     threadSelectors.getViewOptions,
     (threadViewOptions) => threadViewOptions.expandedLowerWingCallNodePaths
+  );
+
+  const getUpperWingExpandedCallNodePaths: Selector<PathSet> = createSelector(
+    threadSelectors.getViewOptions,
+    (threadViewOptions) => threadViewOptions.expandedUpperWingCallNodePaths
   );
 
   const getExpandedCallNodeIndexes: Selector<
@@ -284,6 +312,17 @@ export function getStackAndSampleSelectorsPerThread(
       )
   );
 
+  const getUpperWingExpandedCallNodeIndexes: Selector<
+    Array<IndexIntoCallNodeTable | null>,
+  > = createSelector(
+    getUpperWingCallNodeInfo,
+    getUpperWingExpandedCallNodePaths,
+    (callNodeInfo, callNodePaths) =>
+      Array.from(callNodePaths).map((path) =>
+        callNodeInfo.getCallNodeIndexFromPath(path)
+      )
+  );
+
   const getSampleIndexToNonInvertedCallNodeIndexForPreviewFilteredThread: Selector<
     Array<IndexIntoCallNodeTable | null>,
   > = createSelector(
@@ -291,6 +330,27 @@ export function getStackAndSampleSelectorsPerThread(
       threadSelectors.getPreviewFilteredSamplesForCallTree(state).stack,
     (state) => getCallNodeInfo(state).getStackIndexToNonInvertedCallNodeIndex(),
     ProfileData.getSampleIndexToCallNodeIndex
+  );
+
+  const getSampleIndexToUpperWingCallNodeIndexForPreviewFilteredThread: Selector<
+    Array<IndexIntoCallNodeTable | null>,
+  > = createSelector(
+    (state) =>
+      threadSelectors.getPreviewFilteredSamplesForCallTree(state).stack,
+    (state) =>
+      getUpperWingCallNodeInfo(state).getStackIndexToNonInvertedCallNodeIndex(),
+    (sampleStacks, stackIndexToCallNodeIndex) => {
+      return sampleStacks.map((stackIndex) => {
+        if (stackIndex === null) {
+          return null;
+        }
+        const callNodeIndex = stackIndexToCallNodeIndex[stackIndex];
+        if (callNodeIndex === -1) {
+          return null;
+        }
+        return callNodeIndex;
+      });
+    }
   );
 
   const getSampleIndexToNonInvertedCallNodeIndexForFilteredThread: Selector<
@@ -386,6 +446,20 @@ export function getStackAndSampleSelectorsPerThread(
       }
     );
 
+  const getUpperWingCallNodeSelfAndSummary: Selector<CallNodeSelfAndSummary> =
+    createSelector(
+      threadSelectors.getPreviewFilteredSamplesForCallTree,
+      getSampleIndexToUpperWingCallNodeIndexForPreviewFilteredThread,
+      getUpperWingCallNodeInfo,
+      (samples, sampleIndexToCallNodeIndex, callNodeInfo) => {
+        return CallTree.computeCallNodeSelfAndSummary(
+          samples,
+          sampleIndexToCallNodeIndex,
+          callNodeInfo.getNonInvertedCallNodeTable().length
+        );
+      }
+    );
+
   const getCallTreeTimings: Selector<CallTree.CallTreeTimings> = createSelector(
     getCallNodeInfo,
     getCallNodeSelfAndSummary,
@@ -398,6 +472,13 @@ export function getStackAndSampleSelectorsPerThread(
       getCallNodeSelfAndSummary,
       getSelectedFunctionIndex,
       CallTree.computeLowerWingTimings
+    );
+
+  const _getUpperWingCallTreeTimings: Selector<CallTree.CallTreeTimings> =
+    createSelector(
+      getUpperWingCallNodeInfo,
+      getUpperWingCallNodeSelfAndSummary,
+      CallTree.computeCallTreeTimings
     );
 
   const getCallTreeTimingsNonInverted: Selector<CallTree.CallTreeTimingsNonInverted> =
@@ -441,6 +522,15 @@ export function getStackAndSampleSelectorsPerThread(
       getWeightTypeForCallTree,
       CallTree.getFunctionListTree
     );
+
+  const getUpperWingCallTree: Selector<CallTree.CallTree> = createSelector(
+    threadSelectors.getPreviewFilteredThread,
+    getUpperWingCallNodeInfo,
+    ProfileSelectors.getCategories,
+    _getUpperWingCallTreeTimings,
+    getWeightTypeForCallTree,
+    CallTree.getCallTree
+  );
 
   const getLowerWingCallTree: Selector<CallTree.CallTree> = createSelector(
     threadSelectors.getPreviewFilteredThread,
@@ -572,6 +662,25 @@ export function getStackAndSampleSelectorsPerThread(
       }
     );
 
+  const getUpperWingRightClickedCallNodeIndex: Selector<null | IndexIntoCallNodeTable> =
+    createSelector(
+      getRightClickedCallNodeInfo,
+      getCallNodeInfo,
+      (rightClickedCallNodeInfo, callNodeInfo) => {
+        if (
+          rightClickedCallNodeInfo !== null &&
+          rightClickedCallNodeInfo.threadsKey === threadsKey &&
+          rightClickedCallNodeInfo.area === 'UPPER_WING'
+        ) {
+          return callNodeInfo.getCallNodeIndexFromPath(
+            rightClickedCallNodeInfo.callNodePath
+          );
+        }
+
+        return null;
+      }
+    );
+
   const getRightClickedFunctionIndex: Selector<null | IndexIntoFuncTable> =
     createSelector(
       ProfileSelectors.getProfileViewOptions,
@@ -594,6 +703,7 @@ export function getStackAndSampleSelectorsPerThread(
     getWeightTypeForCallTree,
     getCallNodeInfo,
     getLowerWingCallNodeInfo,
+    getUpperWingCallNodeInfo,
     getSourceViewStackLineInfo,
     getAssemblyViewNativeSymbolIndex,
     getAssemblyViewStackAddressInfo,
@@ -601,17 +711,22 @@ export function getStackAndSampleSelectorsPerThread(
     getSelectedCallNodeIndex,
     getLowerWingSelectedCallNodePath,
     getLowerWingSelectedCallNodeIndex,
+    getUpperWingSelectedCallNodePath,
+    getUpperWingSelectedCallNodeIndex,
     getSelectedFunctionIndex,
     getExpandedCallNodePaths,
     getExpandedCallNodeIndexes,
     getLowerWingExpandedCallNodePaths,
     getLowerWingExpandedCallNodeIndexes,
+    getUpperWingExpandedCallNodePaths,
+    getUpperWingExpandedCallNodeIndexes,
     getSampleIndexToNonInvertedCallNodeIndexForFilteredThread,
     getSamplesSelectedStatesInFilteredThread,
     getTreeOrderComparatorInFilteredThread,
     getCallTree,
     getFunctionListTree,
     getLowerWingCallTree,
+    getUpperWingCallTree,
     getSourceViewLineTimings,
     getAssemblyViewAddressTimings,
     getTracedTiming,
@@ -623,5 +738,6 @@ export function getStackAndSampleSelectorsPerThread(
     getRightClickedCallNodeIndex,
     getRightClickedFunctionIndex,
     getLowerWingRightClickedCallNodeIndex,
+    getUpperWingRightClickedCallNodeIndex,
   };
 }
